@@ -20,10 +20,21 @@ telebot.logger.setLevel(logging.DEBUG)
 #El bot con el que gestionaremos las interacciones con el usuario.
 kbot = telebot.TeleBot(TOKEN)
 
-#Prueba de que el bot esta funcionando.
+
+@kbot.message_handler(commands=['get'])
+def enviar(message):
+    """ Enviamos el fichero que nos pidan y si no existe devuelve un error."""
+    try:
+        file = open(message.text[len("/get "):].replace(" ", ""), 'rb')
+        kbot.send_document(message.chat.id, file)
+    except:
+        kbot.send_message(message.chat.id, "Fichero no encontrado.")
+
 @kbot.message_handler(func=lambda message: True)
 def echo(message):
     """Responde con el mismo mensaje que recibe. """    
     kbot.reply_to(message, message.text)
+    kbot.send_message(message.chat.id, "Tu id de chat es: " + str(message.chat.id))
+
 
 kbot.polling()
