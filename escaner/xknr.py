@@ -1,5 +1,7 @@
 """
+=========================
 ===== KALIGRAM XNKR =====
+=========================
 
 Descripcion: Escaner de IPs con extracción de informacion mediante modulos personalizados para diferentes tipos de
 informacion a extraer.
@@ -7,9 +9,17 @@ informacion a extraer.
 
 import argparse
 import sys
+import ipaddress
+import colorama
 from pprint import pprint
 
-import colorama
+from mod_scanners import xknr_scanner
+from mod_extractors import xknr_ex_cisco78xx
+
+
+# ===========================================
+# FUNCIONES AUXILIARES
+# ===========================================
 
 def inicializar():
     """
@@ -53,38 +63,77 @@ def procesar_argumentos():
     groupInfo.add_argument('-v','--verbose', action='store_true', dest='verbose', help='Mostrar información del proceso de escaneo')
     argumentos = parser.parse_args()
 
+    # Listar modulos disponibles
     if argumentos.listmodules:
         mostrar_info_modulos()
         sys.exit(0)
 
+    # Sin argumentos
     if argumentos.ip is None or len(argumentos.ip) == 0 :
         parser.print_help()
         sys.exit(0)
 
+    # Validacion
     modulo_escaneo = validar_modulo(argumentos.module)
 
     if modulo_escaneo is None and len(sys.argv) > 1:
         print('Módulo no válido, ver modulos disponibles con opción -lm')
         sys.exit(0)
 
-    #lstIPs = obtener_lista_ips(argumentos)
+    lstIPs = obtener_lista_ips(argumentos)
     lstIPs = []
 
     if len(lstIPs)==0: sys.exit(0)
 
+    # Devuelve el modulo de escaneo, la lista de IPs y los parametros de ejecucion
     return (modulo_escaneo, lstIPs, argumentos)
 
 
+def obtener_lista_ips(args):
+    "Obtiene la lista de IPs a procesar"
+    lstIPs = []
+
+    # Preparacion de rango de IPs
+    for x in args.ip :
+
+        lstIPaux = []
+
+        try:
+            ip = ipaddress.ip_address(x)
+            lstIPaux.append(ip)
+        except ValueError:
+            pass
+
+        if (len(lstIPaux ) == 0):
+            try:
+                ip = ipaddress.ip_network(x, strict=False)
+                lstIPaux = list(ip.hosts())
+            except ValueError:
+                print('Error: IP no válida: {0}'.format(x))
+                sys.exit(0)
+
+        lstIPs = lstIPs + lstIPaux
+
+    lstIPs = sorted(list(set(lstIPs))) # Eliminacion de posibles duplicados
+
+    if args.limit > 0: # Aplica el limite al numero de IPs
+        del lstIPs[args.limit:]
+
+    return lstIPs
+
 def mostrar_info_modulos():
-    "Muestra info de los modulos disponibles"
-    print('Módulos disponibles:' )
+    "Muestra info de los modulos de extraccion disponibles"
+    print('Módulos de extraccion disponibles:' )
     print(' {0}modulo{1}: Desc modulo'.format(colorama.Fore.YELLOW, colorama.Fore.RESET) )
 
 
 def validar_modulo(modulo):
     "Valida que los valores de los modulos sean correctos, devolviendo el modulo que corresponda"
+    modulos = {
+        'modulo': xknr_ex_cisco78xx.parse
+    }
+    return modulos.get(modulo, None)
 
-    return True
 
 
 # ===========================================
@@ -93,11 +142,26 @@ def validar_modulo(modulo):
 
 def main():
 
+    # Obtencion de parametros para la ejecución
     (modulo_escaneo, lstIPs, argumentos) = inicializar()
 
     print(" ")
 
+    (lstResults,numErrores) = xknr_scanner.escanear_rango(lstIPs, modulo_escaneo, timeout=argumentos.timeout, num_hilos=argumentos.concurrent, verbose=True)
 
+    print(" ")
+
+    if len(lstResults)==1:
+        print("==== [{0}DATOS EXTRAIDOS] ====".format(colorama.Fore.WHITE))
+        for x in lstResults[0]:
+            print("  {0}{1}: {2}{3}".format(colorama.Fore.CYAN,x[0],colorama.Fore.YELLOW,x[1]))
+        print(" ")
+
+    # Resultado del escaneo
+    print("==== [RESUMEN DE ESCANEO] ====".format(colorama.Fore.CYAN))
+    print('  IPs escaneadas: {0}'.format(len(lstIPs)))
+    print('  IPs con respuesta: {0}{1}'.format(colorama.Fore.GREEN, len(lstResults)))
+    print('  IPs con formato no válido: {0}{1}'.format(colorama.Fore.YELLOW, numErrores))
 
 
 
