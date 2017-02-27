@@ -13,7 +13,8 @@ import ipaddress
 import colorama
 from pprint import pprint
 
-from escaner.mod_scanners import xknr_scanner
+from mod_scanners import xknr_scanner
+from mod_extractors import xknr_ex_cisco78xx
 
 
 # ===========================================
@@ -128,8 +129,11 @@ def mostrar_info_modulos():
 
 def validar_modulo(modulo):
     "Valida que los valores de los modulos sean correctos, devolviendo el modulo que corresponda"
+    modulos = {
+        'modulo': xknr_ex_cisco78xx.parse
+    }
+    return modulos.get(modulo, None)
 
-    return True
 
 
 # ===========================================
@@ -143,7 +147,7 @@ def main():
 
     print(" ")
 
-    (lstResults,numErrores) =  xknr_scanner.escanear_rango(lstIPs, modulo_escaneo, timeout=argumentos.timeout, num_hilos=argumentos.concurrent, verbose=True)
+    (lstResults,numErrores) = xknr_scanner.escanear_rango(lstIPs, modulo_escaneo, timeout=argumentos.timeout, num_hilos=argumentos.concurrent, verbose=True)
 
     print(" ")
 
