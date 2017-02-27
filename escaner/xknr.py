@@ -14,8 +14,9 @@ import colorama
 from pprint import pprint
 
 from mod_scanners import xknr_scanner
+from mod_extractors import xknr_ex_webinfo
 from mod_extractors import xknr_ex_cisco78xx
-
+from mod_output import xknr_out_csv
 
 # ===========================================
 # FUNCIONES AUXILIARES
@@ -35,7 +36,7 @@ def inicializar():
 
     #  === PARAMETROS  DE ENTRADA ===
     # Procesamiento de argumentos de entrada
-    (modulo_escaneo, lstIPs, argumentos) = procesar_argumentos()
+    (modulo_escaneo, modulo_extraccion, modulo_salida, lstIPs, argumentos) = procesar_argumentos()
 
     if argumentos.verbose:
         print("Lista de IPs que se van a escanear:")
@@ -44,7 +45,7 @@ def inicializar():
         if argumentos.limit > 0:
             print("  Rango  limitado a {} IPs".format(argumentos.limit))
 
-    return (modulo_escaneo, lstIPs, argumentos)
+    return (modulo_escaneo, modulo_extraccion, modulo_salida, lstIPs, argumentos)
 
 
 
@@ -56,10 +57,12 @@ def procesar_argumentos():
     parser.add_argument('-ip', action='append', dest='ip', help='IP (a.b.c.d) o rango de IPs (a.b.c.d/m) a escanear')
     groupOpt.add_argument('-t','--timeout', action='store', dest='timeout', help='Timeout de las conexiones en segundos (por defecto 3s)', type=int, default=3)
     groupOpt.add_argument('-c','--concurrent', action='store', dest='concurrent', help='Número de IPs a escanear en paralelo (por defecto 5)', type=int, default=5)
-    groupOpt.add_argument('-m','--module', action='store', dest='module', help='Módulo a aplicar al escaneo (ver disponibles con opción -lm)')
+    groupOpt.add_argument('-mx','--modulo_ext', action='store', dest='modulo_ext', help='Módulo de escaneo a aplicar (ver disponibles con opción -lm)')
+    groupOpt.add_argument('-me','--modulo_esc', action='store', dest='modulo_esc', help='Módulo de extracción a aplicar al escaneo (ver disponibles con opción -lm)')
+    groupOpt.add_argument('-mo','--modulo_out', action='store', dest='modulo_out', help='Módulo de salida a aplicar a lso datos escaneados (ver disponibles con opción -lm)')
+    groupInfo.add_argument('-lm','--listmodules', action='store_true', dest='listmodules', help='Listar módulos disponibles')
     groupOpt.add_argument('-li','--limit', action='store', dest='limit', help='Limite de número de IPs a escanear', type=int, default=0)
     groupOpt.add_argument('-n','--nofiles', action='store_true', dest='nofile', help='No generar ficheros de salida')
-    groupInfo.add_argument('-lm','--listmodules', action='store_true', dest='listmodules', help='Listar módulos de escaneo disponibles')
     groupInfo.add_argument('-v','--verbose', action='store_true', dest='verbose', help='Mostrar información del proceso de escaneo')
     argumentos = parser.parse_args()
 
@@ -74,19 +77,22 @@ def procesar_argumentos():
         sys.exit(0)
 
     # Validacion
-    modulo_escaneo = validar_modulo(argumentos.module)
+    modulo_escaneo = validar_modulo(argumentos.module,'esc')
+    modulo_extraccion = validar_modulo(argumentos.module,'ex')
+    modulo_salida = validar_modulo(argumentos.module,'out')
 
-    if modulo_escaneo is None and len(sys.argv) > 1:
-        print('Módulo no válido, ver modulos disponibles con opción -lm')
+    if (modulo_escaneo is None or modulo_salida is None or modulo_extraccion is None) and len(sys.argv) > 1:
+        print('Módulos no válidos, ver modulos disponibles con opción -lm')
         sys.exit(0)
 
     lstIPs = obtener_lista_ips(argumentos)
-    lstIPs = []
 
-    if len(lstIPs)==0: sys.exit(0)
+    if len(lstIPs)==0:
+        print('No hay IPs a escanear')
+        sys.exit(0)
 
     # Devuelve el modulo de escaneo, la lista de IPs y los parametros de ejecucion
-    return (modulo_escaneo, lstIPs, argumentos)
+    return (modulo_escaneo, modulo_extraccion, modulo_salida, lstIPs, argumentos)
 
 
 def obtener_lista_ips(args):
@@ -123,16 +129,44 @@ def obtener_lista_ips(args):
 
 def mostrar_info_modulos():
     "Muestra info de los modulos de extraccion disponibles"
+
+    print('Módulos de escaneo disponibles:' )
+    print(' {0}basic{1}: Escaneo simple con peticiones concurrentes'.format(colorama.Fore.YELLOW, colorama.Fore.RESET))
     print('Módulos de extraccion disponibles:' )
-    print(' {0}modulo{1}: Desc modulo'.format(colorama.Fore.YELLOW, colorama.Fore.RESET) )
+    print(' {0}webinfo{1}: Info basica de página web '.format(colorama.Fore.YELLOW, colorama.Fore.RESET))
+    print(' {0}cisco78xx{1}: Telefonos IP Cisco 78xx'.format(colorama.Fore.YELLOW, colorama.Fore.RESET) )
+    print('Módulos de salida disponibles:' )
+    print(' {0}csv{1}: Salida a fichero CSV'.format(colorama.Fore.YELLOW, colorama.Fore.RESET))
 
 
-def validar_modulo(modulo):
+def validar_modulo(modulo, tipo):
     "Valida que los valores de los modulos sean correctos, devolviendo el modulo que corresponda"
-    modulos = {
-        'modulo': xknr_ex_cisco78xx.parse
+
+    modulos_ex = {
+        'webinfo': xknr_ex_webinfo.parse,
+        'cisco78xx': xknr_ex_cisco78xx.parse,
     }
-    return modulos.get(modulo, None)
+
+    modulos_esc = {
+        'basic': xknr_scanner.escanear_rango
+    }
+
+    modulos_out = {
+        'csv': xknr_out_csv.procesar_datos
+    }
+
+    tipos_modulo = {
+        "ex": modulos_ex,
+        "esc": modulos_esc,
+        "out": modulos_out
+    }
+
+    tipo_modulo =  tipos_modulo.get(tipo, None)
+
+    if (tipos_modulo is None):
+        return None
+
+    return tipo_modulo.get(modulo, None)
 
 
 
@@ -143,11 +177,11 @@ def validar_modulo(modulo):
 def main():
 
     # Obtencion de parametros para la ejecución
-    (modulo_escaneo, lstIPs, argumentos) = inicializar()
+    (modulo_escaneo, modulo_extraccion, modulo_salida, lstIPs, argumentos) = inicializar()
 
     print(" ")
 
-    (lstResults,numErrores) = xknr_scanner.escanear_rango(lstIPs, modulo_escaneo, timeout=argumentos.timeout, num_hilos=argumentos.concurrent, verbose=True)
+    (lstResults,numErrores) = modulo_escaneo(lstIPs, modulo_extraccion, timeout=argumentos.timeout, num_hilos=argumentos.concurrent, verbose=True)
 
     print(" ")
 
@@ -161,8 +195,10 @@ def main():
     print("==== [RESUMEN DE ESCANEO] ====".format(colorama.Fore.CYAN))
     print('  IPs escaneadas: {0}'.format(len(lstIPs)))
     print('  IPs con respuesta: {0}{1}'.format(colorama.Fore.GREEN, len(lstResults)))
-    print('  IPs con formato no válido: {0}{1}'.format(colorama.Fore.YELLOW, numErrores))
+    print('  IPs sin respuesta: {0}{1}'.format(colorama.Fore.YELLOW, numErrores))
 
+    if len(lstResults)>0 and not argumentos.nofile :
+        modulo_salida(lstResults)
 
 
 if __name__ == "__main__":
