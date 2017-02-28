@@ -77,55 +77,55 @@ def procesar_argumentos():
         sys.exit(0)
 
     # Validacion
-    modulo_escaneo = validar_modulo(argumentos.module,'esc')
-    modulo_extraccion = validar_modulo(argumentos.module,'ex')
-    modulo_salida = validar_modulo(argumentos.module,'out')
+    f_modulo_escaneo = obtener_funcion_modulo(argumentos.modulo_esc, 'esc')
+    f_modulo_extraccion = obtener_funcion_modulo(argumentos.modulo_ext, 'ext')
+    f_modulo_salida = obtener_funcion_modulo(argumentos.modulo_out, 'out')
 
-    if (modulo_escaneo is None or modulo_salida is None or modulo_extraccion is None) and len(sys.argv) > 1:
+    if (f_modulo_escaneo is None or f_modulo_salida is None or f_modulo_extraccion is None) and len(sys.argv) > 1:
         print('Módulos no válidos, ver modulos disponibles con opción -lm')
         sys.exit(0)
 
-    lstIPs = obtener_lista_ips(argumentos)
+    lst_ips = obtener_lista_ips(argumentos)
 
-    if len(lstIPs)==0:
+    if len(lst_ips)==0:
         print('No hay IPs a escanear')
         sys.exit(0)
 
     # Devuelve el modulo de escaneo, la lista de IPs y los parametros de ejecucion
-    return (modulo_escaneo, modulo_extraccion, modulo_salida, lstIPs, argumentos)
+    return (f_modulo_escaneo, f_modulo_extraccion, f_modulo_salida, lst_ips, argumentos)
 
 
 def obtener_lista_ips(args):
     "Obtiene la lista de IPs a procesar"
-    lstIPs = []
+    lst_ips = []
 
     # Preparacion de rango de IPs
     for x in args.ip :
 
-        lstIPaux = []
+        lst_ips_aux = []
 
         try:
             ip = ipaddress.ip_address(x)
-            lstIPaux.append(ip)
+            lst_ips_aux.append(ip)
         except ValueError:
             pass
 
-        if (len(lstIPaux ) == 0):
+        if (len(lst_ips_aux ) == 0):
             try:
                 ip = ipaddress.ip_network(x, strict=False)
-                lstIPaux = list(ip.hosts())
+                lst_ips_aux = list(ip.hosts())
             except ValueError:
                 print('Error: IP no válida: {0}'.format(x))
                 sys.exit(0)
 
-        lstIPs = lstIPs + lstIPaux
+        lst_ips = lst_ips + lst_ips_aux
 
-    lstIPs = sorted(list(set(lstIPs))) # Eliminacion de posibles duplicados
+    lst_ips = sorted(list(set(lst_ips))) # Eliminacion de posibles duplicados
 
     if args.limit > 0: # Aplica el limite al numero de IPs
-        del lstIPs[args.limit:]
+        del lst_ips[args.limit:]
 
-    return lstIPs
+    return lst_ips
 
 def mostrar_info_modulos():
     "Muestra info de los modulos de extraccion disponibles"
@@ -139,7 +139,7 @@ def mostrar_info_modulos():
     print(' {0}csv{1}: Salida a fichero CSV'.format(colorama.Fore.YELLOW, colorama.Fore.RESET))
 
 
-def validar_modulo(modulo, tipo):
+def obtener_funcion_modulo(modulo, tipo):
     "Valida que los valores de los modulos sean correctos, devolviendo el modulo que corresponda"
 
     modulos_ex = {
@@ -163,7 +163,7 @@ def validar_modulo(modulo, tipo):
 
     tipo_modulo =  tipos_modulo.get(tipo, None)
 
-    if (tipos_modulo is None):
+    if (tipo_modulo is None):
         return None
 
     return tipo_modulo.get(modulo, None)
@@ -177,28 +177,28 @@ def validar_modulo(modulo, tipo):
 def main():
 
     # Obtencion de parametros para la ejecución
-    (modulo_escaneo, modulo_extraccion, modulo_salida, lstIPs, argumentos) = inicializar()
+    (f_modulo_escaneo, f_modulo_extraccion, f_modulo_salida, lst_ips, argumentos) = inicializar()
 
     print(" ")
 
-    (lstResults,numErrores) = modulo_escaneo(lstIPs, modulo_extraccion, timeout=argumentos.timeout, num_hilos=argumentos.concurrent, verbose=True)
+    (lst_results,num_errores) = f_modulo_escaneo(lst_ips, f_modulo_extraccion, timeout=argumentos.timeout, num_hilos=argumentos.concurrent, verbose=True)
 
     print(" ")
 
-    if len(lstResults)==1:
+    if len(lst_results)==1:
         print("==== [{0}DATOS EXTRAIDOS] ====".format(colorama.Fore.WHITE))
-        for x in lstResults[0]:
+        for x in lst_results[0]:
             print("  {0}{1}: {2}{3}".format(colorama.Fore.CYAN,x[0],colorama.Fore.YELLOW,x[1]))
         print(" ")
 
     # Resultado del escaneo
     print("==== [RESUMEN DE ESCANEO] ====".format(colorama.Fore.CYAN))
-    print('  IPs escaneadas: {0}'.format(len(lstIPs)))
-    print('  IPs con respuesta: {0}{1}'.format(colorama.Fore.GREEN, len(lstResults)))
-    print('  IPs sin respuesta: {0}{1}'.format(colorama.Fore.YELLOW, numErrores))
+    print('  IPs escaneadas: {0}'.format(len(lst_ips)))
+    print('  IPs con respuesta: {0}{1}'.format(colorama.Fore.GREEN, len(lst_results)))
+    print('  IPs sin respuesta: {0}{1}'.format(colorama.Fore.YELLOW, num_errores))
 
-    if len(lstResults)>0 and not argumentos.nofile :
-        modulo_salida(lstResults)
+    if len(lst_results)>0 and not argumentos.nofile :
+        f_modulo_salida(lst_results)
 
 
 if __name__ == "__main__":
