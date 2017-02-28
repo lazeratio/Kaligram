@@ -2,7 +2,7 @@
 
 Los módulos deben implementar un método con la siguiente firma:
 
-def procesar_datos(datos)
+procesar_datos(datos)
 
 donde,
 
