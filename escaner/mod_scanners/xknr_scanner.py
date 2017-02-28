@@ -8,7 +8,7 @@ Escaner de IPs simple que ejecuta un módulo de escaneo en un rango de IPs de fo
 import concurrent.futures
 import colorama
 
-def escanear_rango(lista_ips, modulo_escaneo, timeout=3, num_hilos=5, verbose=False):
+def escanear_rango(lista_ips, modulo_extraccion, timeout=3, num_hilos=5, verbose=False):
     """Escanea un rango de IPs con un modulo determinado.
 
     + Parametros:
@@ -30,7 +30,7 @@ def escanear_rango(lista_ips, modulo_escaneo, timeout=3, num_hilos=5, verbose=Fa
     # Ejecucion en paralelo de peticiones
     with concurrent.futures.ThreadPoolExecutor(max_workers=num_hilos) as executor:
 
-        futures = {executor.submit(modulo_escaneo, ip, timeout): ip for ip in lista_ips}
+        futures = {executor.submit(modulo_extraccion, ip, timeout): ip for ip in lista_ips}
 
         for future in concurrent.futures.as_completed(futures):
 
