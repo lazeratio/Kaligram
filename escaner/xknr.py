@@ -57,8 +57,8 @@ def procesar_argumentos():
     parser.add_argument('-ip', action='append', dest='ip', help='IP (a.b.c.d) o rango de IPs (a.b.c.d/m) a escanear')
     groupOpt.add_argument('-t','--timeout', action='store', dest='timeout', help='Timeout de las conexiones en segundos (por defecto 3s)', type=int, default=3)
     groupOpt.add_argument('-c','--concurrent', action='store', dest='concurrent', help='Número de IPs a escanear en paralelo (por defecto 5)', type=int, default=5)
-    groupOpt.add_argument('-mx','--modulo_ext', action='store', dest='modulo_ext', help='Módulo de escaneo a aplicar (ver disponibles con opción -lm)')
-    groupOpt.add_argument('-me','--modulo_esc', action='store', dest='modulo_esc', help='Módulo de extracción a aplicar al escaneo (ver disponibles con opción -lm)')
+    groupOpt.add_argument('-mx','--modulo_esc', action='store', dest='modulo_esc', help='Módulo de escaneo a aplicar (ver disponibles con opción -lm)')
+    groupOpt.add_argument('-me','--modulo_ext', action='store', dest='modulo_ext', help='Módulo de extracción a aplicar al escaneo (ver disponibles con opción -lm)')
     groupOpt.add_argument('-mo','--modulo_out', action='store', dest='modulo_out', help='Módulo de salida a aplicar a lso datos escaneados (ver disponibles con opción -lm)')
     groupInfo.add_argument('-lm','--listmodules', action='store_true', dest='listmodules', help='Listar módulos disponibles')
     groupOpt.add_argument('-li','--limit', action='store', dest='limit', help='Limite de número de IPs a escanear', type=int, default=0)
@@ -130,19 +130,19 @@ def obtener_lista_ips(args):
 def mostrar_info_modulos():
     "Muestra info de los modulos de extraccion disponibles"
 
-    print('Módulos de escaneo disponibles:' )
+    print('{0}Módulos de escaneo disponibles{1}:'.format(colorama.Fore.CYAN, colorama.Fore.RESET ))
     print(' {0}basic{1}: Escaneo simple con peticiones concurrentes'.format(colorama.Fore.YELLOW, colorama.Fore.RESET))
-    print('Módulos de extraccion disponibles:' )
+    print('{0}Módulos de extraccion disponibles{1}:'.format(colorama.Fore.CYAN, colorama.Fore.RESET ))
     print(' {0}webinfo{1}: Info basica de página web '.format(colorama.Fore.YELLOW, colorama.Fore.RESET))
     print(' {0}cisco78xx{1}: Telefonos IP Cisco 78xx'.format(colorama.Fore.YELLOW, colorama.Fore.RESET) )
-    print('Módulos de salida disponibles:' )
+    print('{0}Módulos de salida disponibles{1}:'.format(colorama.Fore.CYAN, colorama.Fore.RESET ))
     print(' {0}csv{1}: Salida a fichero CSV'.format(colorama.Fore.YELLOW, colorama.Fore.RESET))
 
 
 def obtener_funcion_modulo(modulo, tipo):
     "Valida que los valores de los modulos sean correctos, devolviendo el modulo que corresponda"
 
-    modulos_ex = {
+    modulos_ext = {
         'webinfo': xknr_ex_webinfo.parse,
         'cisco78xx': xknr_ex_cisco78xx.parse,
     }
@@ -156,7 +156,7 @@ def obtener_funcion_modulo(modulo, tipo):
     }
 
     tipos_modulo = {
-        "ex": modulos_ex,
+        "ext": modulos_ext,
         "esc": modulos_esc,
         "out": modulos_out
     }
