@@ -62,7 +62,7 @@ def procesar_argumentos():
     groupOpt.add_argument('-mo','--modulo_out', action='store', dest='modulo_out', help='Módulo de salida a aplicar a lso datos escaneados (ver disponibles con opción -lm)')
     groupInfo.add_argument('-lm','--listmodules', action='store_true', dest='listmodules', help='Listar módulos disponibles')
     groupOpt.add_argument('-li','--limit', action='store', dest='limit', help='Limite de número de IPs a escanear', type=int, default=0)
-    groupOpt.add_argument('-n','--nofiles', action='store_true', dest='nofile', help='No generar ficheros de salida')
+    groupOpt.add_argument('-n','--nooutput', action='store_true', dest='no_output', help='No aplicar procesamiento de salida')
     groupInfo.add_argument('-v','--verbose', action='store_true', dest='verbose', help='Mostrar información del proceso de escaneo')
     argumentos = parser.parse_args()
 
@@ -197,7 +197,7 @@ def main():
     print('  IPs con respuesta: {0}{1}'.format(colorama.Fore.GREEN, len(lst_results)))
     print('  IPs sin respuesta: {0}{1}'.format(colorama.Fore.YELLOW, num_errores))
 
-    if len(lst_results)>0 and not argumentos.nofile :
+    if len(lst_results)>0 and not argumentos.no_output :
         f_modulo_salida(lst_results)
 
 
