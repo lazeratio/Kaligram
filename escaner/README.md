@@ -25,6 +25,14 @@ Módulos requeridos para la ejecución del script (Instalar globalmente o en vir
  - colorama
  - beautifulsoup4
 
+Los requisitos se pueden instalar con este comando ya sea en el entorno global o en uno virtual:
+
+```python
+ pip install -r requirements.txt
+```
+
+Siendo `requirements.txt` el fichero de texto que contiene los nombres de los módulos necesarios.
+
 
 ## EJEMPLO
 
