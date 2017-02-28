@@ -1,12 +1,12 @@
-== Directorio con módulos de procesamiento de salida de datos ==
+# Directorio con módulos de procesamiento de salida de datos
 
 Los módulos deben implementar un método con la siguiente firma:
 
-    def procesar_datos(datos)
+def procesar_datos(datos)
 
-    donde,
+donde,
 
-    - datos: diccionario con nombres de dato y datos
+- datos: diccionario con nombres de dato y datos
 
-    el método devolverá verdadero o falso en función de si el procesamiento ha tenido o no éxito.
+el método devolverá verdadero o falso en función de si el procesamiento ha tenido o no éxito.
 
