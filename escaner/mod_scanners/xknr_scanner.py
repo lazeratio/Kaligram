@@ -63,6 +63,11 @@ def escanear_rango(lista_ips, modulo_extraccion, timeout=3, num_hilos=5, verbose
 
                     if verbose: print(colorama.Fore.RED +'IP {0:16s} SIN RESPUESTA'.format(str(ipval)))
 
+                # IP sin infomacion valida
+                elif msg.startswith("INFO"):
+
+                    if verbose: print(colorama.Fore.YELLOW +'IP {0:16s} SIN INFO VALIDA'.format(str(ipval)))
+
                 # Error generico
                 else:
 

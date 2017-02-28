@@ -28,33 +28,20 @@ def parse(ip,timeout=5):
         html = req.read()
         soup = BeautifulSoup(html,'html5lib')
 
-        # La informacion esta en la tabla 3
-        hdrInfo = soup.find_all('header')
-        hdrInfo = hdrInfo[0] if len(hdrInfo) > 0 else None
+        # Se extrae la info de la pagina
+        title_tag = soup.title
 
-        if not hdrInfo is None and len(hdrInfo) > 0:
+        lstData.append(("modulo", "webinfo"))
+        lstData.append(("ip", str(ip)))
 
-            lstData.append(("modulo","webinfo"))
-            lstData.append(("ip",str(ip)))
-
-            # Funciones para la busqueda de textos en las llamadas a beutifulsoup
-            f1 = lambda val,elt: val in elt.string.strip()
-            f2 = lambda val,elt: val in elt.string.strip().lower()
-
-            # Lista de pares (nombre a dar al campo en los resultados, funcion de busqueda de cadena de texto para beautifulsoup)
-            lstMapeo = [("titulo", lambda x: f1("title",x))]
-
-            for elt in lstMapeo:
-                f = elt[1]
-                v="titulo"
-                #v = hdrInfo.find_all(string=f)
-                #v = v[0].parent.parent.next_sibling.next_sibling.string.strip() if len(v) > 0 else '---'
-                lstData.append((elt[0], v))
-
+        if not title_tag is None:
+            title_tag_str= title_tag.string if len(title_tag.string) > 0 else '---'
+            lstData.append(("titulo", title_tag_str))
+            lstData.append(('info_txt', title_tag_str))
             msgResult =  'OK'
 
         else:
-            msgResult =  'NO INFO [{0}: {1}]'.format("Pagina Base", url)
+            msgResult =  'INFO: NO INFO [{0}: {1}]'.format("Pagina Base", url)
 
     except urllib.error.URLError as exc:
         # print("[%s] %s" % (ip, str(exc.reason)))
@@ -73,20 +60,6 @@ def parse(ip,timeout=5):
 
 
     return lstData, msgResult, lstErrores
-
-
-def buscarTexto(patron,txt):
-
-    res = ''
-    p = re.compile(patron)
-    matches = p.search(txt)
-
-    if not matches is None:
-        grupos = matches.groups()
-        if len(grupos)>0:
-            res = grupos[0]
-
-    return res
 
 
 if __name__ == "__main__":

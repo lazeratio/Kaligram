@@ -12,5 +12,10 @@ setup(
     entry_points={
         'console_scripts': ['xknr=xknr:main'],
     },
+    install_requires=[
+        'html5lib',
+        'colorama',
+        'beautifulsoup4'
+    ],
     description='Escaner de red con extracción de información mediante módulos personalizables'
 )
