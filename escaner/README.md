@@ -18,3 +18,10 @@ en las carpetas de módulos siguientes:
   se hacen las peticiones a las IPs, siendo posible en este punto integrar herramientas externas como NMAP, por ejemplo.
 
 El script principal xknr.py integra los diferentes módulos para realizar el proceso de escaneo completo.
+
+Módulos requeridos para la ejecución del script (Instalar globalmente o en virtualenv con 'pip install <modulo>'):
+
+ - html5lib
+ - colorama
+ - beautifulsoup4
+
