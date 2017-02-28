@@ -25,7 +25,8 @@ Módulos requeridos para la ejecución del script (Instalar globalmente o en vir
  - colorama
  - beautifulsoup4
 
- EJEMPLO:
+
+## EJEMPLO
 
 Escanear rango de IPs 10.66.0.0/24 con los módulos basic, webinfo y csv, con un timeout de 3 seg para cada petición,
 sin procesado de salida, una concurrencia de 10 peticiones y modo verbose activado:
