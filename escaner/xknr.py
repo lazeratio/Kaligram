@@ -183,10 +183,11 @@ def main():
 
     print(" ")
 
-    (lst_results,num_errores) = f_modulo_escaneo(lst_ips, f_modulo_extraccion, timeout=argumentos.timeout, num_hilos=argumentos.concurrent, verbose=True)
+    (lst_results,num_errores) = f_modulo_escaneo(lst_ips, f_modulo_extraccion, timeout=argumentos.timeout, num_hilos=argumentos.concurrent, verbose=argumentos.verbose)
 
     print(" ")
 
+    # Si solo se escanea una IP se muestra la info en la consola, aunque no este activado el modo verbose
     if len(lst_results)==1:
         print("==== [{0}DATOS EXTRAIDOS] ====".format(colorama.Fore.WHITE))
         for x in lst_results[0]:
