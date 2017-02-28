@@ -41,7 +41,7 @@ def parse(ip,timeout=5):
             msgResult =  'OK'
 
         else:
-            msgResult =  'NO INFO [{0}: {1}]'.format("Pagina Base", url)
+            msgResult =  'INFO: NO INFO [{0}: {1}]'.format("Pagina Base", url)
 
     except urllib.error.URLError as exc:
         # print("[%s] %s" % (ip, str(exc.reason)))
