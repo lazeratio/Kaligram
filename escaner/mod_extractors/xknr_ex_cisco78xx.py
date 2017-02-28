@@ -63,7 +63,7 @@ def parse(ip,timeout=5):
             msgResult =  'OK'
 
         else:
-            msgResult =  'FORMATO NO VALIDO [{0}: {1}]'.format("Pagina Base", url)
+            msgResult =  'INFO: FORMATO NO VALIDO [{0}: {1}]'.format("Pagina Base", url)
 
     except urllib.error.URLError as exc:
         # print("[%s] %s" % (ip, str(exc.reason)))
@@ -108,7 +108,7 @@ def parse(ip,timeout=5):
             lstData.append(("switch_ip", v))
 
         else:
-            msgResult = 'FORMATO NO VALIDO [{0}: {1}]'.format("Pagina Red", url2)
+            msgResult = 'INFO: FORMATO NO VALIDO [{0}: {1}]'.format("Pagina Red", url2)
 
     except urllib.error.URLError as exc:
         # print("[%s] %s" % (ip, str(exc.reason)))
@@ -117,7 +117,6 @@ def parse(ip,timeout=5):
     except Exception as exc:
         msgResult = 'ERROR [{0}: {1}]'.format("Pagina Red", url2)
         lstErrores.append(exc)
-
 
     return lstData, msgResult, lstErrores
 
