@@ -104,12 +104,14 @@ def obtener_lista_ips(args):
 
         lst_ips_aux = []
 
+        # Se comprueba si es una IP individual
         try:
             ip = ipaddress.ip_address(x)
             lst_ips_aux.append(ip)
         except ValueError:
             pass
 
+        # Si no lo es se obtienen todas las IPs del rango
         if (len(lst_ips_aux ) == 0):
             try:
                 ip = ipaddress.ip_network(x, strict=False)
@@ -199,6 +201,13 @@ def main():
 
     if len(lst_results)>0 and not argumentos.no_output :
         f_modulo_salida(lst_results)
+
+
+
+def signal_handler(signal, frame):
+    "Gestiona una señal de interrupcion"
+    print('Presionado Ctrl+C!')
+    sys.exit(0)
 
 
 if __name__ == "__main__":
