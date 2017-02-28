@@ -20,7 +20,7 @@ def parse(ip,timeout=5):
     msgResult = ''
 
     # La informacion esta en varias paginas
-    url = "http://" + str(ip) + "/cisco/53" # Pagina principal
+    url = "http://" + str(ip) # Pagina principal
     url2 = url + "/CGI/Java/Serviceability?adapter=device.statistics.port.network" # Datos de estadisticas de red
 
 
