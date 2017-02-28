@@ -20,7 +20,7 @@ def parse(ip,timeout=5):
     msgResult = ''
 
     # La informacion esta en varias paginas
-    url = "http://" + str(ip) # Pagina principal
+    url = "http://" + str(ip) + "/cisco/53" # Pagina principal
     url2 = url + "/CGI/Java/Serviceability?adapter=device.statistics.port.network" # Datos de estadisticas de red
 
 
@@ -54,7 +54,11 @@ def parse(ip,timeout=5):
                 f = elt[1]
                 v = tblInfo.find_all(string=f)
                 v = v[0].parent.parent.next_sibling.next_sibling.string.strip() if len(v) > 0 else '---'
+                if (elt[0]=="numero"):
+                    lstData.append(('info_txt', v))
                 lstData.append((elt[0], v))
+
+
 
             msgResult =  'OK'
 
