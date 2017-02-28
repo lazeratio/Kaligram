@@ -8,6 +8,7 @@ import logging
 import telebot #API para controlar el bot de telegram https://github.com/eternnoir/pyTelegramBotAPI 
 import configparser 
 import ast
+import hashlib
 
 """Introducimos el token del bot que habremos creado previamente.
 Lo creamos con @BotFather http://botsfortelegram.com/project/the-bot-father/
@@ -52,18 +53,22 @@ Los siguientes comandos estan disponibles:
     /start Muestra el mensaje de bienvenida.
     /help  Muestra esta ayuda.
     /get    Recibes el fichero que has solicidado.
-    /exec  Ejecutas un comando y te muestra el resultado.
-    /ls     Muestra los ficheros disponibles.
+    /exec  Ejecuta un comando. Necesita contraseña.
+                ej: /exec ls -P=123
+    /ls      Muestra los ficheros disponibles.
 """)
 
 
 @kbot.message_handler(commands=['exec'])
 def run(message):
     """Ejecuta el comando enviado y devuelve el resultado linea a linea."""
+    #pwd = "nopwd".encode("utf-8")
     cid = message.chat.id
-    if isadmin(cid) == True:
-        kbot.send_message(cid, message.text[len("/exec"):])
-        cmd = message.text[len("/exec"):]
+    msg = message.text
+    cmd = msg[6:msg.find("-P=")]
+    pwd = msg[msg.find("-P=")+3:].replace(' ', '').encode("utf-8")
+    if isadmin(cid) == True and auth(pwd) == True:
+        kbot.send_message(cid, cmd)
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
         out = p.stdout.readlines()
     
@@ -71,7 +76,7 @@ def run(message):
             kbot.send_message(cid, l.decode("utf-8"))
         
     else:
-        kbot.send_message(cid, "No estás autorizado a usar este comando. \U0000274c") #\U0000274c es el emoticono de error.
+        kbot.send_message(cid, "No estás autorizado. Introduce la contraseña usando -P=pwd \U0000274c") #\U0000274c es el emoticono de error.
         
         
 @kbot.message_handler(commands=['ls'])
@@ -87,7 +92,7 @@ def ls(message):
             kbot.send_message(cid, l.decode("utf-8"))
         
     else:
-        kbot.send_message(cid, "No estás autorizado a usar este comando. \U0000274c") #\U0000274c es el emoticono de error.
+        kbot.send_message(cid, "No estás autorizado a usar este comando. \U0000274c" + str(cid)) #\U0000274c es el emoticono de error.
         
 
 @kbot.message_handler(commands=['get'])
@@ -107,7 +112,7 @@ def send(message):
 
 @kbot.message_handler(func=lambda message: True)
 def echo(message):
-    """Responde con el mismo mensaje que recibe."""
+    """Devuelve un mensaje si no existe el comando."""
     cid = message.chat.id
     if isuser(cid) == True:
         kbot.send_message(cid, "Escriba /help para ayuda.")
@@ -145,8 +150,8 @@ def get(message):
 def isuser(chat_id):
     """Comprueba si el usuario esta autorizado"""
     USERS = ast.literal_eval(config.get('DEFAULT', 'USERS'))
-    for u, cid in USERS.items():
-        if int(cid) == int(chat_id):
+    for u, uid in USERS.items():
+        if int(uid) == int(chat_id):
             return True
         else:
             return False
@@ -160,7 +165,15 @@ def isadmin(chat_id):
             return True
         else:
             return False        
-        
+ 
+    
+def auth(passwd):
+    """Comprueba si la contraseña es correcta"""
+    pwd=config.get('DEFAULT', 'PASSWORD')
+    if hashlib.sha256(passwd).hexdigest() == pwd:
+        return True
+    else:
+        return False       
 
 
 kbot.polling()
