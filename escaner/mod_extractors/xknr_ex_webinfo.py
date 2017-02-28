@@ -37,6 +37,7 @@ def parse(ip,timeout=5):
         if not title_tag is None:
             title_tag_str= title_tag.string if len(title_tag.string) > 0 else '---'
             lstData.append(("titulo", title_tag_str))
+            lstData.append(('info_txt', title_tag_str))
             msgResult =  'OK'
 
         else:
