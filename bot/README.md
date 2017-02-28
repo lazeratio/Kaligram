@@ -1,4 +1,4 @@
-# Kaligram
+# Kaligram Bot
 Bot creado en python 3.5 que permite gestionar remotamente un equipo.
 
 Requisitos:
