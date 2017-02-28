@@ -6,7 +6,7 @@ Módulo para genearció de CSV con datos extraidos por un módulo de extracción
 
 import datetime
 import csv
-
+import colorama
 
 def procesar_datos(datos):
     "Grabacion en un fichero csv de los datos"
