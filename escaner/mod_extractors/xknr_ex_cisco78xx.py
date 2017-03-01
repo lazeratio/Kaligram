@@ -58,8 +58,6 @@ def parse(ip,timeout=5):
                     lstData.append(('info_txt', v))
                 lstData.append((elt[0], v))
 
-
-
             msgResult =  'OK'
 
         else:
