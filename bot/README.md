@@ -24,6 +24,7 @@ Los datos de configuración del bot estan en el fichero config.ini
     USERS = {'user1':'123', 'user2':'456'} # Usuarios que tienen acceso.
     ADMINS = {'admin1':'123', 'admin2':'456'} # Administradores
     PASSWORD = Hash MD5 de la contraseña que pedira para algunos comandos.
+    PWDGPG = Contraseña con la que se cifraran los ficheros que envíe el bot.
     
     
     El acceso de los usuarios y administradores se controla a traves del id
