@@ -2,7 +2,7 @@
 
 Descripción: Script de escaneo de rangos de IPs modularizable.
 
-Este script permite realizar un escaneo de rangos de IPs aplicando modulos personalizables. De forma resumida su
+Este script permite realizar un escaneo de rangos de IPs aplicando módulos personalizables. De forma resumida su
 funcionamiento básico es el siguiente:
  - Obtiene el rango de IPs a escanear
  - Recorre el rango de IPs, aplicando el módulo de procesamiento que se especifique
@@ -17,7 +17,7 @@ en las carpetas de módulos siguientes:
  - *mod_scanners*: módulos para el proceso de recorrido de los rangos de IPs, que permite especificar el modo en el que
   se hacen las peticiones a las IPs, siendo posible en este punto integrar herramientas externas como NMAP, por ejemplo.
 
-El script principal xknr.py integra los diferentes módulos para realizar el proceso de escaneo completo.
+El script principal `xknr.py` integra los diferentes módulos para realizar el proceso de escaneo completo.
 
 Módulos requeridos para la ejecución del script (Instalar globalmente o en virtualenv con 'pip install <modulo>'):
 
@@ -34,11 +34,17 @@ Los requisitos se pueden instalar con este comando ya sea en el entorno global o
 Siendo `requirements.txt` el fichero de texto que contiene los nombres de los módulos necesarios.
 
 
-## EJEMPLO
+## EJEMPLOS
 
-Escanear rango de IPs 10.66.0.0/24 con los módulos basic, webinfo y csv, con un timeout de 3 seg para cada petición,
+Ej.1 Escanear rango de IPs 10.66.0.0/24 con los módulos basic, webinfo y csv, con un timeout de 3 seg para cada petición,
 sin procesado de salida, una concurrencia de 10 peticiones y modo verbose activado:
 
 ```python
  python xknr.py -ip 10.66.0.0/24 -me basic -mx webinfo -mo csv -n -t3 -v -c 10
+```
+
+Ej.2 Escanear IP 10.66.0.136 con los módulos basic, webinfo y csv:
+
+```python
+ python xknr.py -ip 10.66.0.173 -me basic -mx webinfo -mo csv
 ```

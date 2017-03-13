@@ -4,12 +4,12 @@ Proyecto Kaligram desarrollado en el Hackhaton 4YFN 2017
 Este proyecto incluye dos herramientas.
 
 
-Kaligram Bot
+*Kaligram Bot*
 
     Bot creado en python 3.5 que permite gestionar remotamente un equipo.
 
 
-Kaligram Escaner
+*Kaligram Escaner*
 
     Script de escaneo de rangos de IPs modularizable.
-    Este script permite realizar un escaneo de rangos de IPs aplicando modulos personalizables
+    Este script permite realizar un escaneo de rangos de IPs aplicando módulos personalizables
