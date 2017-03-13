@@ -9,6 +9,7 @@ import telebot #API para controlar el bot de telegram https://github.com/eternno
 import configparser 
 import ast
 import hashlib
+from time import sleep
 
 """Introducimos el token del bot que habremos creado previamente.
 Lo creamos con @BotFather http://botsfortelegram.com/project/the-bot-father/
@@ -38,7 +39,7 @@ def bienvenida(message):
 Este bot es solo para usuarios autorizados.
 Para ayuda escriba /help""")
     
-    if isuser(cid) == True:
+    if isuser(cid) is True:
         kbot.send_message(cid, "Tu usuario esta autorizado.")
     else:
         kbot.send_message(cid, "Tu usuario no esta autorizado.")
@@ -67,11 +68,11 @@ def run(message):
     msg = message.text
     cmd = msg[6:msg.find("-P=")]
     pwd = msg[msg.find("-P=")+3:].replace(' ', '').encode("utf-8")
-    if isadmin(cid) == True and auth(pwd) == True:
+    if isadmin(cid) is True and auth(pwd) is True:
         kbot.send_message(cid, cmd)
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
         out = p.stdout.readlines()
-    
+
         for l in out:
             kbot.send_message(cid, l.decode("utf-8"))
         
@@ -83,7 +84,7 @@ def run(message):
 def ls(message):
     """Muestra los ficheros del directorio desde donde se esta ejecutando."""
     cid = message.chat.id
-    if isuser(cid) == True:
+    if isuser(cid) is True:
         cmd = "ls -l"
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
         out = p.stdout.readlines()
@@ -99,12 +100,25 @@ def ls(message):
 def send(message):
     """ Enviamos el fichero que nos pidan y si no existe devuelve un error."""
     cid = message.chat.id
-    if isuser(cid) == True:
+    pwdgpg = config['DEFAULT']['PWDGPG']
+    if isuser(cid) is True:
+        
         try:
-            file = open(message.text[len("/get "):].replace(" ", ""), 'rb')
-            kbot.send_document(cid, file)
+            filename = message.text[len("/get "):].replace(" ", "")
+            subprocess.Popen(["gpg","-c", "--passphrase", pwdgpg, filename])
+            sleep(1)
+            filename = filename+".gpg"
         except:
-            kbot.send_message(cid, "Fichero no encontrado.")
+            kbot.send_message(cid, "Error en el cifrado")
+                        
+        try:
+            file = open(filename, 'rb')
+            kbot.send_document(cid, file)
+            sleep(1)
+            file.close()
+            subprocess.Popen(["rm",filename])
+        except OSError as err:
+            kbot.send_message(cid, "Fichero no encontrado. "+str(err))
         
     else:
         kbot.send_message(cid, "No estás autorizado a usar este bot. \U0000274c") #\U0000274c es el emoticono de error.
@@ -114,7 +128,7 @@ def send(message):
 def echo(message):
     """Devuelve un mensaje si no existe el comando."""
     cid = message.chat.id
-    if isuser(cid) == True:
+    if isuser(cid) is True:
         kbot.send_message(cid, "Escriba /help para ayuda.")
     else:
         kbot.send_message(cid, "No estás autorizado a usar este bot. \U0000274c") #\U0000274c es el emoticono de error.
@@ -124,7 +138,7 @@ def echo(message):
 def get(message):
     """Gestionamos el resto de mensajes, en principio recepción de ficheros."""
     cid = message.chat.id
-    if isuser(cid) == True:
+    if isuser(cid) is True:
         try:
             message_dir = ""
             for m in dir(message.document):
